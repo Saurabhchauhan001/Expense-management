@@ -2,56 +2,50 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import connectDB from "../../../../../lib/mongodb";
 import Budget from "../../../../../models/Budget";
-import { authOptions } from "../../../auth/[...nextauth]/route";
+import { authOptions } from "../../auth/[...nextauth]/route";
 
-// PUT /api/budgets/[id]/category
 export async function PUT(req, context) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
-
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: "Unauthorized: Please log in." },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = context.params;
-
+    const { id } = await context.params;
     const { category, planned, actual } = await req.json();
-    if (!category || typeof category !== "string") {
-      return NextResponse.json(
-        { error: "Category name required." },
-        { status: 400 }
-      );
+
+    if (!category) {
+      return NextResponse.json({ error: "Category is required" }, { status: 400 });
     }
 
-    const plannedNum = typeof planned === "number" ? planned : 0;
-    const actualNum = typeof actual === "number" ? actual : 0;
-
+    // 🟢 Find the budget document first
     const budget = await Budget.findOne({ _id: id, userEmail: session.user.email });
     if (!budget) {
-      return NextResponse.json({ error: "Budget not found." }, { status: 404 });
+      return NextResponse.json({ error: "Budget not found" }, { status: 404 });
     }
 
-    const catIdx = budget.categories.findIndex((c) => c.category === category);
+    // 🟢 Check if category already exists; if yes, update it; else push new one
+    const existingIndex = budget.categories.findIndex(
+      (c) => c.category.toLowerCase() === category.toLowerCase()
+    );
 
-    if (catIdx > -1) {
-      budget.categories[catIdx].planned = plannedNum;
-      budget.categories[catIdx].actual = actualNum;
+    if (existingIndex > -1) {
+      budget.categories[existingIndex].planned = planned || 0;
+      budget.categories[existingIndex].actual = actual || 0;
     } else {
       budget.categories.push({
         category,
-        planned: plannedNum,
-        actual: actualNum,
+        planned: planned || 0,
+        actual: actual || 0,
       });
     }
 
     budget.updatedAt = new Date();
     await budget.save();
 
-    return NextResponse.json(budget, { status: 200 });
+    const plainBudget = budget.toObject();
+    return NextResponse.json(plainBudget, { status: 200 });
   } catch (err) {
     console.error("PUT /api/budgets/[id]/category error:", err);
     return NextResponse.json(

@@ -19,12 +19,32 @@ function PlannerInner() {
   const handleCreateClick = () => setShowCreate(true);
 
   // Called by AddCategoryForm or CategoryList
-  const handleAddCategory = async ({ category, planned }) => {
+  const handleAddCategory = async ({ category, planned, actual }) => {
     if (!selected) throw new Error("No selected budget");
-    // Optionally: mutate selected in context and locally
-    await updateBudget(selected._id || selected.id, { category, planned });
-    // In a real app, you may want to re-fetch the updated budget or update local state:
-    // setSelected(updated);
+
+    // ✅ Create new category object with entered actual value
+    const newCategory = { 
+      name: category, 
+      planned: Number(planned), 
+      actual: Number(actual) || 0 
+    };
+
+    // Merge with existing categories
+    const updatedCategories = [...(selected.categories || []), newCategory];
+
+    // Update backend via PUT
+    const res = await fetch(`/api/budgets/${selected._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ categories: updatedCategories }),
+    });
+
+    if (!res.ok) throw new Error("Failed to update budget");
+
+    const updatedBudget = await res.json();
+
+    // Update local state
+    setSelected(updatedBudget);
   };
 
   const handleUpdateCategoryActual = async (category, patch) => {

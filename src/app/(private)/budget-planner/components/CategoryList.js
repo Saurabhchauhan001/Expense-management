@@ -1,8 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-// Pass in: categories (array), onUpdateCategory (function)
-export default function CategoryList({ categories = [], onUpdateCategory }) {
+// Pass in: categories (array), onUpdateCategory (function), budgetId (string)
+export default function CategoryList({ categories = [], onUpdateCategory = () => {}, budgetId }) {
   const [editingIndex, setEditingIndex] = useState(-1);
   const [editValues, setEditValues] = useState({ planned: "", actual: "" });
   const [safeCategories, setSafeCategories] = useState(
@@ -11,8 +11,9 @@ export default function CategoryList({ categories = [], onUpdateCategory }) {
 
   // ✅ keeps local safeCategories synced when parent updates its prop
   useEffect(() => {
-    setSafeCategories(Array.isArray(categories) ? categories : []);
-  }, [categories]);
+  console.log("Updated categories prop:", categories);
+  setSafeCategories(Array.isArray(categories) ? categories : []);
+}, [categories]);
 
   return (
     <div className="max-w-xl mx-auto">
@@ -23,10 +24,10 @@ export default function CategoryList({ categories = [], onUpdateCategory }) {
       <ul>
         {safeCategories.map((cat, idx) => (
           <li
-            key={cat.category}
+            key={`${cat._id || cat.name || cat.category || "category"}-${idx}`}
             className="mb-2 border p-2 rounded flex gap-2 items-center"
           >
-            <span className="w-32 font-medium">{cat.category}</span>
+            <span className="w-32 font-medium">{cat.name || cat.category}</span>
             {editingIndex === idx ? (
               <>
                 <input
@@ -49,12 +50,40 @@ export default function CategoryList({ categories = [], onUpdateCategory }) {
                 />
                 <button
                   className="px-2 py-1 text-green-600 font-bold"
-                  onClick={() => {
-                    onUpdateCategory(cat.category, {
-                      planned: Number(editValues.planned),
-                      actual: Number(editValues.actual),
-                    });
-                    setEditingIndex(-1);
+                  onClick={async () => {
+                    try {
+                      const updatedCategory = {
+                        ...cat, // preserve name and any existing properties
+                        planned: Number(editValues.planned),
+                        actual: Number(editValues.actual),
+                      };
+
+                      // Update the local copy first
+                      const updatedCategories = safeCategories.map((c) =>
+                        (c._id || c.name || c.category) === (cat._id || cat.name || cat.category)
+                          ? updatedCategory
+                          : c
+                      );
+                      setSafeCategories(updatedCategories);
+
+                      // Persist changes to backend
+                      const res = await fetch(`/api/budgets/${budgetId}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ categories: updatedCategories }),
+                      });
+
+                      if (!res.ok) throw new Error("Failed to update category in database");
+                      const updatedBudget = await res.json();
+
+                      // Trigger parent callback if available
+                      onUpdateCategory(cat._id || cat.name || cat.category, updatedCategory);
+
+                      setEditingIndex(-1);
+                    } catch (err) {
+                      console.error("Error updating category:", err);
+                      alert("Failed to update category. Please try again.");
+                    }
                   }}
                 >
                   Save
@@ -68,19 +97,63 @@ export default function CategoryList({ categories = [], onUpdateCategory }) {
               </>
             ) : (
               <>
-                <span className="w-20">Planned: ₹{cat.planned}</span>
-                <span className="w-20">Actual: ₹{cat.actual}</span>
+                <span className="w-20">Planned: {cat.planned == null ? "—" : `₹${cat.planned}`}</span>
+                <span className="w-20">Actual: {cat.actual == null ? "—" : `₹${cat.actual}`}</span>
+                <div className="w-full h-2 bg-gray-200 rounded overflow-hidden">
+                  <div
+                    className="h-full bg-green-500 transition-all duration-300"
+                    style={{
+                      width: `${
+                        cat.planned && cat.actual
+                          ? Math.min((cat.actual / cat.planned) * 100, 100)
+                          : 0
+                      }%`,
+                    }}
+                  ></div>
+                </div>
                 <button
                   className="px-2 py-1 text-blue-600"
                   onClick={() => {
                     setEditingIndex(idx);
                     setEditValues({
-                      planned: cat.planned,
-                      actual: cat.actual,
+                      planned: cat.planned ?? "",
+                      actual: cat.actual ?? "",
                     });
                   }}
                 >
                   Edit
+                </button>
+                <button
+                  className="px-2 py-1 text-red-600"
+                  onClick={async () => {
+                    const displayName = cat.name || cat.category || "this category";
+                    if (!window.confirm(`Delete category "${displayName}"?`)) return;
+                    try {
+                      const updatedCategories = safeCategories.filter(
+                        (c) => (c._id || c.name || c.category) !== (cat._id || cat.name || cat.category)
+                      );
+                      setSafeCategories(updatedCategories);
+
+                      // Persist changes to backend
+                      const res = await fetch(`/api/budgets/${budgetId}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ categories: updatedCategories }),
+                      });
+
+                      if (!res.ok) throw new Error("Failed to delete category from database");
+                      const updatedBudget = await res.json();
+
+                      // ✅ Sync with backend data to avoid showing deleted categories again
+                      setSafeCategories(updatedBudget.categories || []);
+                      onUpdateCategory(cat._id || cat.name || cat.category, null);
+                    } catch (err) {
+                      console.error("Error deleting category:", err);
+                      alert("Failed to delete category. Please try again.");
+                    }
+                  }}
+                >
+                  Delete
                 </button>
               </>
             )}

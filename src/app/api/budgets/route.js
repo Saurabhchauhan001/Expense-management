@@ -28,8 +28,9 @@ export async function POST(req) {
     });
     return NextResponse.json(newBudget, { status: 201 });
   } catch (err) {
-    return NextResponse.json({ error: "Failed to create budget", details: err.message }, { status: 500 });
-  }
+  console.error("Error creating budget:", err);
+  return NextResponse.json({ error: "Failed to create budget", details: err.message }, { status: 500 });
+}
 }
 
 // GET /api/budgets => fetch all budgets for user

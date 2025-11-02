@@ -4,24 +4,27 @@ import connectDB from "../../../../lib/mongodb";
 import Budget from "../../../../models/Budget";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
-// GET /api/budgets/[id] (get single budget)
+// ✅ Fetch a single budget
 export async function GET(req, context) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const params = await context.params;
-    const id = params.id;
+    const { id } = await context.params;
+    const budget = await Budget.findOne({
+      _id: id,
+      userEmail: session.user.email,
+    });
 
-    const budget = await Budget.findOne({ _id: id, userEmail: session.user.email });
     if (!budget) {
       return NextResponse.json({ error: "Budget not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ budget }, { status: 200 });
+    return NextResponse.json(budget, { status: 200 });
   } catch (err) {
     console.error("GET /api/budgets/[id] error:", err);
     return NextResponse.json(
@@ -31,70 +34,43 @@ export async function GET(req, context) {
   }
 }
 
-// PUT /api/budgets/[id] (update budget details)
+// ✅ Safe Update Budget (Preserves Existing Categories)
 export async function PUT(req, context) {
   try {
     await connectDB();
     const session = await getServerSession(authOptions);
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const params = await context.params;
-    const id = params.id;
+    const { id } = await context.params;
+    const patch = await req.json();
 
-    const data = await req.json();
-    const { name, type, totalBudget } = data;
-
-    const updateData = {};
-    if (name) updateData.name = name;
-    if (type) updateData.type = type;
-    if (totalBudget !== undefined) updateData.totalBudget = totalBudget;
-    updateData.updatedAt = new Date();
-
-    const updatedBudget = await Budget.findOneAndUpdate(
-      { _id: id, userEmail: session.user.email },
-      updateData,
-      { new: true }
-    );
-
-    if (!updatedBudget) {
+    const existing = await Budget.findOne({ _id: id, userEmail: session.user.email });
+    if (!existing) {
       return NextResponse.json({ error: "Budget not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ budget: updatedBudget }, { status: 200 });
+    const updatedBudget = await Budget.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          name: patch.name ?? existing.name,
+          type: patch.type ?? existing.type,
+          totalBudget: patch.totalBudget ?? existing.totalBudget,
+          categories: patch.categories ?? existing.categories,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true }
+    );
+
+    return NextResponse.json(updatedBudget, { status: 200 });
   } catch (err) {
     console.error("PUT /api/budgets/[id] error:", err);
     return NextResponse.json(
       { error: "Failed to update budget", details: err.message },
-      { status: 500 }
-    );
-  }
-}
-
-// DELETE /api/budgets/[id] (delete budget)
-export async function DELETE(req, context) {
-  try {
-    await connectDB();
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const params = await context.params;
-    const id = params.id;
-
-    const deleted = await Budget.findOneAndDelete({ _id: id, userEmail: session.user.email });
-
-    if (!deleted) {
-      return NextResponse.json({ error: "Budget not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ success: true }, { status: 200 });
-  } catch (err) {
-    console.error("DELETE /api/budgets/[id] error:", err);
-    return NextResponse.json(
-      { error: "Failed to delete budget", details: err.message },
       { status: 500 }
     );
   }
