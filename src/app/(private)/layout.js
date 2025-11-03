@@ -4,7 +4,7 @@
 import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import NavbarApp from "../../components/NavbarApp"; // relative path
+import NavbarApp from "../../components/NavbarApp";
 import "../globals.css";
 
 function AuthenticatedLayout({ children }) {
@@ -18,10 +18,15 @@ function AuthenticatedLayout({ children }) {
   }, [status, router]);
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <div className="p-6 text-center text-gray-500">Loading...</div>;
   }
 
-  return <main className="p-6">{children}</main>;
+  return (
+    <>
+      <NavbarApp />
+      <main className="p-6">{children}</main>
+    </>
+  );
 }
 
 export default function PrivateLayout({ children }) {
