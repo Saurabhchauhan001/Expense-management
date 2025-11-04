@@ -23,7 +23,7 @@ function AuthenticatedLayout({ children }) {
 
   return (
     <>
-      <NavbarApp />
+    
       <main className="p-6">{children}</main>
     </>
   );
