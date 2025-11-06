@@ -1,3 +1,5 @@
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcrypt";
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import connectDB from "../../../../lib/mongodb";
@@ -5,9 +7,29 @@ import User from "../../../../models/User";
 
 export const authOptions = {
   providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        await connectDB();
+        const user = await User.findOne({ email: credentials.email });
+        if (!user) throw new Error("No user found with this email");
+        const isValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isValid) throw new Error("Invalid password");
+        return user;
+      },
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
       httpOptions: { timeout: 10000 },
     }),
   ],
@@ -67,6 +89,7 @@ export const authOptions = {
 
   pages: {
     signIn: "/auth/signin",
+    signOut: "/auth/signin",
   },
 
   secret: process.env.NEXTAUTH_SECRET,

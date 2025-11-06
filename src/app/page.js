@@ -13,23 +13,12 @@ export default function LandingPage() {
       </p>
 
       <div className="space-x-4 mb-16 animate-fadeIn delay-400">
-        {!session ? (
-          <>
-            <Link
-              href="/auth/signin"
-              className="bg-amber-400 text-teal-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-500 transition shadow-md hover:shadow-teal-700/40"
-            >
-              Sign In
-            </Link>
-          </>
-        ) : (
-          <Link
-            href="/dashboard"
-            className="bg-amber-400 text-teal-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-500 transition shadow-md hover:shadow-teal-700/40"
-          >
-            Go to Dashboard
-          </Link>
-        )}
+        <Link
+          href="/auth/signin"
+          className="bg-amber-400 text-teal-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-500 transition shadow-md hover:shadow-teal-700/40"
+        >
+          Sign In
+        </Link>
       </div>
 
       <section className="max-w-4xl w-full bg-teal-700 bg-opacity-30 rounded-lg p-8 animate-slideUp shadow-lg shadow-teal-900/10">

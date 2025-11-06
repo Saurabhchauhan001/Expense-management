@@ -1,21 +1,35 @@
-// src/app/auth/signin/page.js
 "use client";
 
-import { useSession, signIn } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function SignIn() {
-  const { data: session, status } = useSession();
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // Redirect to dashboard if already signed in
-  useEffect(() => {
-    if (session) {
+  const handleEmailSignIn = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    const res = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    setLoading(false);
+
+    if (res?.error) {
+      setError(res.error);
+    } else {
       router.push("/dashboard");
     }
-  }, [session, router]);
+  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -28,39 +42,73 @@ export default function SignIn() {
     }
   };
 
-  if (status === "loading") {
-    return (
-      <div className="flex justify-center items-center h-screen bg-teal-50">
-        <p className="text-teal-700 text-lg font-semibold">Checking session...</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex justify-center items-center h-screen bg-teal-50">
-      <div className="p-6 rounded shadow-md w-96 bg-white text-center">
-        <h2 className="text-2xl font-bold mb-6 text-teal-700">Sign In</h2>
+    <div className="flex justify-center items-center min-h-screen bg-teal-50">
+      <div className="p-8 rounded shadow-md w-full max-w-md bg-white">
+        <h2 className="text-2xl font-bold mb-6 text-teal-700 text-center">Sign In</h2>
 
-        {session ? (
-          <p className="text-green-600 mb-4">You are already signed in! Redirecting...</p>
-        ) : (
-          <>
-            <button
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className={`px-6 py-3 rounded font-semibold shadow-md transition ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed text-white"
-                  : "bg-teal-600 hover:bg-teal-700 text-amber-400"
-              }`}
-            >
-              {loading ? "Signing in..." : "Sign in with Google"}
-            </button>
-            <p className="text-gray-600 mt-4">
-              Use your Google account to access your budget dashboard.
-            </p>
-          </>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm text-center">
+            {error}
+          </div>
         )}
+
+        <form onSubmit={handleEmailSignIn} className="space-y-4">
+          <div>
+            <label className="block text-left text-gray-700 text-sm font-semibold mb-1">
+              Email Address
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-left text-gray-700 text-sm font-semibold mb-1">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 outline-none"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
+          >
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
+        </form>
+
+        <div className="text-center text-sm text-gray-600 mt-4">or</div>
+
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          className={`w-full mt-3 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition font-semibold ${
+            loading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
+        >
+          {loading ? "Signing in..." : "Sign in with Google"}
+        </button>
+
+        <p className="text-gray-600 mt-4 text-center">
+          Don’t have an account?{" "}
+          <a href="/auth/register" className="text-teal-600 font-semibold hover:underline">
+            Register
+          </a>
+        </p>
       </div>
     </div>
   );
