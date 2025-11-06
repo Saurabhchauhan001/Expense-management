@@ -5,6 +5,7 @@ import { SessionProvider, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import NavbarApp from "../../components/NavbarApp";
+import Footer from "../../components/Footer";
 import "../globals.css";
 
 function AuthenticatedLayout({ children }) {
@@ -23,8 +24,9 @@ function AuthenticatedLayout({ children }) {
 
   return (
     <>
-    
+     
       <main className="p-6">{children}</main>
+      <Footer />
     </>
   );
 }

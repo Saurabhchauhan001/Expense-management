@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { Menu, X } from "lucide-react";
 
 export default function NavbarApp() {
   const { data: session } = useSession();
@@ -16,15 +17,15 @@ export default function NavbarApp() {
     { name: "Transactions", href: "/transactions" },
     { name: "Budget Planner", href: "/budget-planner" },
     { name: "Reports", href: "/reports" },
+    {name: "Profile", href:"/profile"},
   ];
 
   return (
-    <nav className="bg-teal-600 text-white p-4 shadow-md">
+    <nav className="bg-teal-600 text-white p-4 shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="text-2xl font-bold tracking-wide text-amber-400">
-          Expense App
-        </div>
+        <div className="text-2xl font-bold tracking-wide text-amber-400">Expense App</div>
 
+        {/* Desktop Links */}
         <div className="hidden md:flex space-x-4">
           {links.map((link) => (
             <Link
@@ -46,11 +47,7 @@ export default function NavbarApp() {
                 className="flex items-center gap-2 px-3 py-2 rounded hover:bg-amber-300 transition"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
-                <img
-                  src={session.user.image}
-                  alt={session.user.name}
-                  className="w-8 h-8 rounded-full"
-                />
+                <img src={session.user.image} alt={session.user.name} className="w-8 h-8 rounded-full" />
                 <span>{session.user.name.split(" ")[0]}</span>
               </button>
 
@@ -69,6 +66,48 @@ export default function NavbarApp() {
                 </div>
               )}
             </div>
+          )}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center">
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="text-amber-400 hover:text-white focus:outline-none"
+          >
+            {isDropdownOpen ? <X size={26} /> : <Menu size={26} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Slide-down Menu */}
+      <div
+        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isDropdownOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+        } bg-teal-700 mt-2 rounded-lg`}
+      >
+        <div className="flex flex-col space-y-2 p-4">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`block px-3 py-2 rounded-md ${
+                pathname === link.href
+                  ? "bg-amber-400 text-teal-900 font-semibold"
+                  : "hover:bg-amber-300 hover:text-teal-900"
+              }`}
+              onClick={() => setIsDropdownOpen(false)}
+            >
+              {link.name}
+            </Link>
+          ))}
+          {session && (
+            <button
+              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+              className="w-full text-left px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 transition text-white"
+            >
+              Sign Out
+            </button>
           )}
         </div>
       </div>

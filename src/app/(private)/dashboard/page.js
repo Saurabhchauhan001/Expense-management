@@ -1,7 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
-
+import RecentTransactions from "@/components/dashboard/RecentTransactions";
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const [transactions, setTransactions] = useState([]);
@@ -86,6 +86,7 @@ export default function Dashboard() {
           <p className="text-3xl font-bold text-amber-500">{topCategory}</p>
         </div>
       </div>
+      <RecentTransactions />
     </>
   );
 }
