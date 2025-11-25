@@ -11,8 +11,8 @@ export default function RootLayout({ children }) {
   const isPublicPage = publicRoutes.includes(pathname);
 
   return (
-    <html lang="en">
-      <body className="bg-gray-50 min-h-screen">
+    <html lang="en" suppressHydrationWarning>
+      <body className="bg-background min-h-screen font-sans antialiased">
         <Providers>
           {isPublicPage ? <NavbarPublic /> : <NavbarApp />}
           <main>{children}</main>

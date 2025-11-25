@@ -1,43 +1,151 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f58888;
-  --foreground: #171717;
+  /* Cosmic Theme - Light Mode */
+  --background: #ffffff;
+  --foreground: #030712;
+  /* Gray 950 */
+
+  /* Card */
+  --card: #ffffff;
+  --card-foreground: #030712;
+
+  /* Popover */
+  --popover: #ffffff;
+  --popover-foreground: #030712;
+
+  /* Primary - Deep Violet/Indigo */
+  --primary: #6366f1;
+  /* Indigo 500 */
+  --primary-foreground: #ffffff;
+
+  /* Secondary - Soft Lavender/Gray */
+  --secondary: #f3f4f6;
+  /* Gray 100 */
+  --secondary-foreground: #1f2937;
+  /* Gray 800 */
+
+  /* Muted */
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  /* Gray 500 */
+
+  /* Accent - Neon Purple/Pink for highlights */
+  --accent: #e0e7ff;
+  /* Indigo 100 */
+  --accent-foreground: #3730a3;
+  /* Indigo 800 */
+
+  /* Destructive */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Border & Input */
+  --border: #e5e7eb;
+  /* Gray 200 */
+  --input: #e5e7eb;
+  --ring: #6366f1;
+
+  /* Radius */
+  --radius: 0.75rem;
+  /* More rounded for modern feel */
+}
+
+.dark {
+  /* Cosmic Theme - Dark Mode */
+  --background: #030712;
+  /* Gray 950 - Almost Black */
+  --foreground: #f9fafb;
+  /* Gray 50 */
+
+  /* Card */
+  --card: #030712;
+  --card-foreground: #f9fafb;
+
+  /* Popover */
+  --popover: #030712;
+  --popover-foreground: #f9fafb;
+
+  /* Primary - Vibrant Violet */
+  --primary: #818cf8;
+  /* Indigo 400 */
+  --primary-foreground: #ffffff;
+
+  /* Secondary - Dark Gray/Blue */
+  --secondary: #1f2937;
+  /* Gray 800 */
+  --secondary-foreground: #f9fafb;
+
+  /* Muted */
+  --muted: #1f2937;
+  --muted-foreground: #9ca3af;
+  /* Gray 400 */
+
+  /* Accent - Glowing Violet */
+  --accent: #312e81;
+  /* Indigo 900 */
+  --accent-foreground: #e0e7ff;
+
+  /* Destructive */
+  --destructive: #7f1d1d;
+  --destructive-foreground: #f9fafb;
+
+  /* Border & Input */
+  --border: #1f2937;
+  --input: #1f2937;
+  --ring: #818cf8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #323131;
-    --foreground: #b1a9a9;
-  }
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
 body {
-  body {
-  @apply bg-gray-50 text-gray-800;
+  @apply bg-background text-foreground antialiased;
   font-family: 'Inter', sans-serif;
-  background-color: #323131;
-}
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 100% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
-/* Reusable component classes */
+/* Utility classes for components */
 @layer components {
-  .btn {
-    @apply bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition-colors;
+  .container-custom {
+    @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  .card {
-    @apply bg-white rounded shadow p-6;
+  .glass-card {
+    @apply bg-white/80 dark:bg-white/5 backdrop-blur-lg border border-gray-200 dark:border-white/10 shadow-xl;
   }
 
-  .input {
-    @apply border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500;
+  .glass-card-hover {
+    @apply hover:bg-white/90 dark:hover:bg-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-500;
   }
 }

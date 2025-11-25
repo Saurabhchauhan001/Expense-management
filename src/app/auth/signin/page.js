@@ -3,6 +3,12 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { AlertCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function SignIn() {
   const router = useRouter();
@@ -43,73 +49,102 @@ export default function SignIn() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-teal-50">
-      <div className="p-8 rounded shadow-md w-full max-w-md bg-white">
-        <h2 className="text-2xl font-bold mb-6 text-teal-700 text-center">Sign In</h2>
+    <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] p-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[100px] -z-10 animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-purple-500/20 rounded-full blur-[80px] -z-10" />
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-sm text-center">
-            {error}
-          </div>
-        )}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <Card className="w-full glass-card border-white/10">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-500">
+              Welcome Back
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Enter your email and password to access your account
+            </p>
+          </CardHeader>
+          <CardContent>
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl mb-4 text-sm flex items-center gap-2"
+              >
+                <AlertCircle className="h-4 w-4" />
+                {error}
+              </motion.div>
+            )}
 
-        <form onSubmit={handleEmailSignIn} className="space-y-4">
-          <div>
-            <label className="block text-left text-gray-700 text-sm font-semibold mb-1">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 outline-none"
-              required
-            />
-          </div>
+            <form onSubmit={handleEmailSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Email Address
+                </label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  required
+                  className="bg-background/50 backdrop-blur-sm border-white/10 focus:ring-primary"
+                />
+              </div>
 
-          <div>
-            <label className="block text-left text-gray-700 text-sm font-semibold mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-teal-500 outline-none"
-              required
-            />
-          </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="bg-background/50 backdrop-blur-sm border-white/10 focus:ring-primary"
+                />
+              </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-700 transition ${
-              loading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
-          >
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
-        </form>
+              <Button type="submit" className="w-full" size="lg" disabled={loading} variant="glow">
+                {loading ? "Signing In..." : "Sign In"}
+              </Button>
+            </form>
 
-        <div className="text-center text-sm text-gray-600 mt-4">or</div>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground rounded-full">Or continue with</span>
+              </div>
+            </div>
 
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          className={`w-full mt-3 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition font-semibold ${
-            loading ? "opacity-70 cursor-not-allowed" : ""
-          }`}
-        >
-          {loading ? "Signing in..." : "Sign in with Google"}
-        </button>
-
-        <p className="text-gray-600 mt-4 text-center">
-          Don’t have an account?{" "}
-          <a href="/auth/register" className="text-teal-600 font-semibold hover:underline">
-            Register
-          </a>
-        </p>
-      </div>
+            <Button
+              variant="outline"
+              type="button"
+              className="w-full"
+              size="lg"
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
+              {loading ? "Signing in..." : "Sign in with Google"}
+            </Button>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-muted-foreground">
+              Don’t have an account?{" "}
+              <Link href="/auth/register" className="text-primary font-medium hover:underline hover:text-primary/80 transition-colors">
+                Register
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 }

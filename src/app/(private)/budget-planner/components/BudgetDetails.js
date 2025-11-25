@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import AddCategoryForm from "./AddCategoryForm";
 import CategoryList from "./CategoryList";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { FileDown } from "lucide-react";
 
 export default function BudgetDetails({
@@ -87,7 +87,7 @@ export default function BudgetDetails({
       </div>
 
       {/* List/Edit Categories */}
-     <CategoryList
+      <CategoryList
         categories={localCategories}
         onUpdateCategory={onUpdateCategory}
         budgetId={budget._id}

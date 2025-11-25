@@ -12,7 +12,7 @@ export const metadata = {
 export default function PublicLayout({ children }) {
   return (
     <>
-      <PublicNavbar />
+      
       <main>{children}</main>
     </>
   )

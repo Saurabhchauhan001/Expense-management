@@ -1,64 +1,72 @@
 import React from "react";
 import { FaGithub, FaLinkedin, FaEnvelope } from "react-icons/fa";
+import Link from "next/link";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-gray-300 py-6 mt-10 border-t border-gray-700">
-      <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
-        {/* Left side */}
-        <div className="text-center md:text-left">
-          <h2 className="text-lg font-semibold text-white">Expense Manager</h2>
-          <p className="text-sm text-gray-400">
-            Manage your expenses efficiently and stay on budget.
-          </p>
+    <footer className="bg-background border-t border-border mt-auto">
+      <div className="container-custom py-8">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Left side */}
+          <div className="text-center md:text-left space-y-2">
+            <div className="flex items-center justify-center md:justify-start gap-2">
+              <div className="h-6 w-6 rounded bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">
+                E
+              </div>
+              <h2 className="text-lg font-bold tracking-tight">ExpenseApp</h2>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-xs">
+              Manage your expenses efficiently and stay on budget with our professional tools.
+            </p>
+          </div>
+
+          {/* Center links */}
+          <div className="flex flex-wrap justify-center gap-6 text-sm font-medium text-muted-foreground">
+            <Link href="/dashboard" className="hover:text-primary transition-colors">
+              Dashboard
+            </Link>
+            <Link href="/budget-planner" className="hover:text-primary transition-colors">
+              Budgets
+            </Link>
+            <Link href="/reports" className="hover:text-primary transition-colors">
+              Reports
+            </Link>
+            <Link href="/profile" className="hover:text-primary transition-colors">
+              Profile
+            </Link>
+          </div>
+
+          {/* Right side social links */}
+          <div className="flex gap-4">
+            <a
+              href="https://github.com/Saurabhchauhan001"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <FaGithub size={20} />
+            </a>
+            <a
+              href="https://linkedin.com/in/saurabh-chauhan001"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <FaLinkedin size={20} />
+            </a>
+            <a
+              href="mailto:saurabhrakeshchauhan@gmail.com"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              <FaEnvelope size={20} />
+            </a>
+          </div>
         </div>
 
-        {/* Center links */}
-        <div className="flex space-x-6 text-sm">
-          <a href="/dashboard" className="hover:text-white transition">
-            Dashboard
-          </a>
-          <a href="/budget" className="hover:text-white transition">
-            Budgets
-          </a>
-          <a href="/reports" className="hover:text-white transition">
-            Reports
-          </a>
-          <a href="/profile" className="hover:text-white transition">
-            Profile
-          </a>
+        {/* Bottom text */}
+        <div className="mt-8 pt-8 border-t border-border text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} ExpenseApp by Saurabh Chauhan. All rights reserved.
         </div>
-
-        {/* Right side social links */}
-        <div className="flex space-x-4">
-          <a
-            href="https://github.com/Saurabhchauhan001"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white transition"
-          >
-            <FaGithub size={20} />
-          </a>
-          <a
-            href="https://linkedin.com/in/saurabh-chauhan001"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-white transition"
-          >
-            <FaLinkedin size={20} />
-          </a>
-          <a
-            href="mailto:saurabhrakeshchauhan@gmail.com"
-            className="hover:text-white transition"
-          >
-            <FaEnvelope size={20} />
-          </a>
-        </div>
-      </div>
-
-      {/* Bottom text */}
-      <div className="text-center text-gray-500 text-xs mt-6">
-        © {new Date().getFullYear()} Expense Manager by Saurabh Chauhan. All rights reserved.
       </div>
     </footer>
   );

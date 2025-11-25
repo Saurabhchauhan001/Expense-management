@@ -1,9 +1,15 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "./ui/Button";
+import ThemeToggle from "./ThemeToggle";
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
 export default function NavbarPublic() {
   const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   const links = [
     { name: "Home", href: "/" },
     { name: "About", href: "/about" },
@@ -12,35 +18,72 @@ export default function NavbarPublic() {
   ];
 
   return (
-   <nav className="bg-teal-600 text-white p-4 shadow-md">
-  <div className="max-w-7xl mx-auto flex items-center justify-between">
-    <div className="text-2xl font-bold tracking-wide text-amber-400">
-      Expense App
-    </div>
-    <div className="hidden md:flex space-x-4">
-      {links.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className={`px-4 py-2 rounded-md transition ${
-            pathname === link.href
-              ? "bg-amber-400 text-teal-900 font-semibold"
-              : "hover:bg-amber-300 hover:text-teal-900"
-          }`}
-        >
-          {link.name}
-        </Link>
-      ))}
-      </div>
-        <Link
-          href="/auth/signin"
-          className="bg-white text-blue-700 px-4 py-2 rounded font-semibold hover:bg-gray-200"
-        >
-          Sign In
-        </Link>
-      </div>
-    
+    <nav className="bg-background border-b border-border sticky top-0 z-50">
+      <div className="container-custom flex h-16 items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
+            E
+          </div>
+          <span className="text-xl font-bold tracking-tight text-foreground">ExpenseApp</span>
+        </div>
 
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-6">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-medium transition-colors ${pathname === link.href
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              {link.name}
+            </Link>
+          ))}
+          <ThemeToggle />
+          <Link href="/auth/signin">
+            <Button>Sign In</Button>
+          </Link>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-border bg-background p-4 space-y-4">
+          <div className="flex flex-col space-y-3">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-sm font-medium transition-colors ${pathname === link.href
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                  }`}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
+            ))}
+            <Link href="/auth/signin" onClick={() => setIsMobileMenuOpen(false)}>
+              <Button className="w-full">Sign In</Button>
+            </Link>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

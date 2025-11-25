@@ -1,8 +1,12 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Card } from "../../../components/ui/card";
-import { Button } from "../../../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { Modal } from "../../../components/ui/Modal";
+import { Plus, Pencil, Trash2, CheckCircle, XCircle, Calendar, Tag, User } from "lucide-react";
 
 export default function DuesPage() {
   const { data: session } = useSession();
@@ -18,12 +22,15 @@ export default function DuesPage() {
     type: "due",
     date: new Date().toISOString(),
   });
-  // For edit feature
+
+  // Edit State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingDueId, setEditingDueId] = useState(null);
   const [editForm, setEditForm] = useState({
     amount: "",
     notes: "",
   });
+
   // 🟢 Edit due
   const handleEditDue = async (e) => {
     e.preventDefault();
@@ -42,12 +49,22 @@ export default function DuesPage() {
       });
       if (res.ok) {
         setEditingDueId(null);
+        setIsEditModalOpen(false);
         setEditForm({ amount: "", notes: "" });
         fetchDues();
       }
     } catch (error) {
       console.error("Edit due error:", error);
     }
+  };
+
+  const openEditModal = (due) => {
+    setEditingDueId(due._id);
+    setEditForm({
+      amount: due.amount,
+      notes: due.notes || "",
+    });
+    setIsEditModalOpen(true);
   };
 
   // 🟢 Fetch dues from API
@@ -62,7 +79,6 @@ export default function DuesPage() {
       const res = await fetch("/api/transactions");
       if (res.ok) {
         const data = await res.json();
-        // Filter all transactions for logged-in user regardless of type
         const filtered = data.filter(
           (item) =>
             item.userEmail &&
@@ -85,7 +101,6 @@ export default function DuesPage() {
   const handleAddDue = async (e) => {
     e.preventDefault();
     try {
-      // Normalize type and set date
       const transactionData = {
         ...formData,
         type: (formData.type || "due").toLowerCase().trim(),
@@ -110,7 +125,6 @@ export default function DuesPage() {
           type: "due",
           date: new Date().toISOString(),
         });
-        // Refresh the dues list after adding new due
         fetchDues();
       } else {
         const errorData = await res.json();
@@ -151,200 +165,193 @@ export default function DuesPage() {
 
   if (!session)
     return (
-      <div className="flex justify-center items-center h-screen text-gray-600 text-xl">
-        Please sign in to manage your dues.
+      <div className="flex justify-center items-center h-screen text-destructive text-xl">
+        Please sign in to manage your transactions.
       </div>
     );
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold text-teal-700 mb-6">Dues & Payables</h1>
+    <div className="container-custom py-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
+      </div>
 
       {/* Add New Due Form */}
-      <form
-        onSubmit={handleAddDue}
-        className="bg-white shadow-md rounded-lg p-4 mb-6 grid grid-cols-2 gap-4"
-      >
-        <input
-          type="text"
-          placeholder="Person / Shop Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Category"
-          value={formData.category}
-          onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="number"
-          placeholder="Amount"
-          value={formData.amount}
-          onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="date"
-          placeholder="Start date"
-          value={formData.borrowedDate}
-          onChange={(e) => setFormData({ ...formData, borrowedDate: e.target.value })}
-          className="border p-2 rounded"
-          required
-        />
-        <input
-          type="date"
-          
-          value={formData.dueDate}
-          onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-          className="border p-2 rounded"
-        />
-        <input
-          type="text"
-          
-          value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-          className="border p-2 rounded col-span-2"
-        />
-        <select
-          value={formData.type}
-          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-          className="border p-2 rounded"
-        >
-          <option value="due">Due</option>
-          <option value="borrowed">Borrowed</option>
-          <option value="payable">Payable</option>
-        </select>
-        <Button type="submit" className="col-span-2 bg-teal-600 hover:bg-teal-700">
-          Add Due
-        </Button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Add New Transaction</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleAddDue} className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Input
+              type="text"
+              placeholder="Person / Shop Name"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              required
+            />
+            <Input
+              type="text"
+              placeholder="Category"
+              value={formData.category}
+              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+              required
+            />
+            <Input
+              type="number"
+              placeholder="Amount"
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+              required
+            />
+            <select
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <option value="due">Due</option>
+              <option value="borrowed">Borrowed</option>
+              <option value="payable">Payable</option>
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+            <Input
+              type="date"
+              placeholder="Start date"
+              value={formData.borrowedDate}
+              onChange={(e) => setFormData({ ...formData, borrowedDate: e.target.value })}
+              required
+            />
+            <Input
+              type="date"
+              placeholder="Due date"
+              value={formData.dueDate}
+              onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+            />
+            <Input
+              type="text"
+              placeholder="Notes"
+              value={formData.notes}
+              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              className="md:col-span-2"
+            />
+            <Button type="submit" className="md:col-span-4">
+              <Plus className="mr-2 h-4 w-4" /> Add Transaction
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {/* Display dues */}
       {loading ? (
-        <div className="text-center text-gray-500">Loading dues...</div>
+        <div className="text-center text-muted-foreground">Loading transactions...</div>
       ) : dues.length === 0 ? (
-        <div className="text-center text-gray-500">No dues found. Add your first one!</div>
+        <div className="text-center text-muted-foreground">No transactions found. Add your first one!</div>
       ) : (
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {dues.map((due) => (
-            <Card key={due._id} className="p-4 shadow-lg border border-gray-200 rounded-lg">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-xl font-semibold text-teal-700">{due.name}</h2>
-                  <p className="text-sm text-gray-600">{due.category}</p>
-                  <p className="text-lg font-bold text-amber-500 mt-1">₹{due.amount}</p>
+            <Card key={due._id} className="flex flex-col justify-between">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-lg">{due.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                      <Tag className="h-3 w-3" /> {due.category}
+                    </p>
+                  </div>
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${due.status === "Paid" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                    }`}>
+                    {due.status || "Pending"}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded ${
-                      due.status === "Paid"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {due.status}
-                  </span>
-                  <span className="text-xs font-semibold px-2 py-1 rounded bg-blue-100 text-blue-700">
-                    {due.type ? due.type.charAt(0).toUpperCase() + due.type.slice(1) : ""}
-                  </span>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-2xl font-bold">₹{due.amount}</span>
+                    <span className="text-xs font-medium px-2 py-1 rounded bg-secondary text-secondary-foreground capitalize">
+                      {due.type}
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p className="flex items-center gap-2">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(due.borrowedDate || due.createdAt).toLocaleDateString()}
+                    </p>
+                    {due.dueDate && (
+                      <p className="flex items-center gap-2 text-destructive">
+                        <Calendar className="h-3 w-3" />
+                        Due: {new Date(due.dueDate).toLocaleDateString()}
+                      </p>
+                    )}
+                    {due.notes && <p className="text-xs italic mt-2">"{due.notes}"</p>}
+                  </div>
                 </div>
-              </div>
-              <p className="text-gray-500 text-sm mt-2">
-                Borrowed: {new Date(due.borrowedDate).toLocaleDateString()}
-              </p>
-              {due.dueDate && (
-                <p className="text-gray-500 text-sm">
-                  Due: {new Date(due.dueDate).toLocaleDateString()}
-                </p>
-              )}
-              {due.notes && <p className="mt-2 text-gray-700">{due.notes}</p>}
 
-              {/* Edit form (inline/modal style) */}
-              {editingDueId === due._id ? (
-                <form
-                  onSubmit={handleEditDue}
-                  className="bg-gray-100 border border-gray-300 rounded p-3 mt-2 flex flex-col gap-2"
-                >
-                  <div className="flex gap-2">
-                    <input
-                      type="number"
-                      value={editForm.amount}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({ ...prev, amount: e.target.value }))
-                      }
-                      className="border p-2 rounded flex-1"
-                      placeholder="Amount"
-                      required
-                    />
-                    <input
-                      type="text"
-                      value={editForm.notes}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({ ...prev, notes: e.target.value }))
-                      }
-                      className="border p-2 rounded flex-1"
-                      placeholder="Notes"
-                    />
-                  </div>
-                  <div className="flex gap-2 mt-2 justify-end">
-                    <Button
-                      type="submit"
-                      className="bg-teal-600 hover:bg-teal-700 text-white"
-                    >
-                      Save
-                    </Button>
-                    <Button
-                      type="button"
-                      className="bg-gray-300 hover:bg-gray-400 text-gray-800"
-                      onClick={() => {
-                        setEditingDueId(null);
-                        setEditForm({ amount: "", notes: "" });
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </form>
-              ) : (
-                <div className="flex justify-end gap-2 mt-3">
+                <div className="flex justify-end gap-2 pt-4 border-t border-border">
                   <Button
-                    onClick={() => {
-                      setEditingDueId(due._id);
-                      setEditForm({
-                        amount: due.amount,
-                        notes: due.notes || "",
-                      });
-                    }}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openEditModal(due)}
                   >
-                    Edit
+                    <Pencil className="h-4 w-4" />
                   </Button>
                   {due.status !== "Paid" && (
                     <Button
+                      variant="default"
+                      size="sm"
                       onClick={() => markAsPaid(due._id)}
-                      className="bg-green-600 hover:bg-green-700 text-white"
+                      className="bg-green-600 hover:bg-green-700"
                     >
-                      Mark as Paid
+                      <CheckCircle className="h-4 w-4" />
                     </Button>
                   )}
                   <Button
+                    variant="destructive"
+                    size="sm"
                     onClick={() => deleteDue(due._id)}
-                    className="bg-red-600 hover:bg-red-700 text-white"
                   >
-                    Delete
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              )}
+              </CardContent>
             </Card>
           ))}
         </div>
       )}
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        title="Edit Transaction"
+      >
+        <form onSubmit={handleEditDue} className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Amount</label>
+            <Input
+              type="number"
+              value={editForm.amount}
+              onChange={(e) => setEditForm({ ...editForm, amount: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Notes</label>
+            <Input
+              type="text"
+              value={editForm.notes}
+              onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+            />
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button type="button" variant="outline" onClick={() => setIsEditModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">Save Changes</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

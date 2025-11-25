@@ -1,66 +1,98 @@
-// src/app/components/NavbarApp.js
 "use client";
 
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard, Receipt, PieChart, FileText } from "lucide-react";
+import { Button } from "./ui/Button";
+import ThemeToggle from "./ThemeToggle";
 
 export default function NavbarApp() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const links = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Transactions", href: "/transactions" },
-    { name: "Budget Planner", href: "/budget-planner" },
-    { name: "Reports", href: "/reports" },
-    {name: "Profile", href:"/profile"},
+    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Transactions", href: "/transactions", icon: Receipt },
+    { name: "Budget", href: "/budget-planner", icon: PieChart },
+    { name: "Reports", href: "/reports", icon: FileText },
   ];
 
   return (
-    <nav className="bg-teal-600 text-white p-4 shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="text-2xl font-bold tracking-wide text-amber-400">Expense App</div>
+    <nav className="bg-background border-b border-border sticky top-0 z-50">
+      <div className="container-custom flex h-16 items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
+            E
+          </div>
+          <span className="text-xl font-bold tracking-tight text-foreground">ExpenseApp</span>
+        </div>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex space-x-4">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`px-4 py-2 rounded-md transition ${
-                pathname === link.href
-                  ? "bg-amber-400 text-teal-900 font-semibold"
-                  : "hover:bg-amber-300 hover:text-teal-900"
-              }`}
-            >
-              {link.name}
-            </Link>
-          ))}
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-1">
+          {links.map((link) => {
+            const Icon = link.icon;
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                  ? "bg-secondary text-secondary-foreground"
+                  : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                  }`}
+              >
+                <Icon className="h-4 w-4" />
+                {link.name}
+              </Link>
+            );
+          })}
+        </div>
 
+        {/* User Menu & Theme Toggle */}
+        <div className="hidden md:flex items-center gap-4">
+          <ThemeToggle />
           {session && (
             <div className="relative">
               <button
-                className="flex items-center gap-2 px-3 py-2 rounded hover:bg-amber-300 transition"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center gap-2 rounded-full border border-border p-1 pr-3 hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <img src={session.user.image} alt={session.user.name} className="w-8 h-8 rounded-full" />
-                <span>{session.user.name.split(" ")[0]}</span>
+                {session.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name}
+                    className="h-8 w-8 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                    <User className="h-4 w-4" />
+                  </div>
+                )}
+                <span className="text-sm font-medium text-foreground">
+                  {session.user?.name?.split(" ")[0]}
+                </span>
               </button>
 
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-teal-600 text-amber-400 rounded shadow-lg p-4 flex flex-col gap-3 z-50">
-                  <Link href="/profile" className="flex items-center gap-2 hover:bg-amber-400 px-2 py-1 rounded transition">
-                    <img src={session.user.image} alt="Profile" className="w-6 h-6 rounded-full" />
-                    <span>Profile</span>
+                <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-background p-1 shadow-lg animate-in fade-in zoom-in-95 duration-100">
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-2 px-2 py-2 text-sm text-foreground rounded-sm hover:bg-secondary transition-colors"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    <User className="h-4 w-4" />
+                    Profile
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-                    className="text-left hover:bg-amber-400 px-2 py-1 rounded transition"
+                    className="flex w-full items-center gap-2 px-2 py-2 text-sm text-destructive rounded-sm hover:bg-destructive/10 transition-colors"
                   >
+                    <LogOut className="h-4 w-4" />
                     Sign Out
                   </button>
                 </div>
@@ -70,47 +102,63 @@ export default function NavbarApp() {
         </div>
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex items-center">
-          <button
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="text-amber-400 hover:text-white focus:outline-none"
+        <div className="md:hidden flex items-center gap-2">
+          <ThemeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isDropdownOpen ? <X size={26} /> : <Menu size={26} />}
-          </button>
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Slide-down Menu */}
-      <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isDropdownOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-        } bg-teal-700 mt-2 rounded-lg`}
-      >
-        <div className="flex flex-col space-y-2 p-4">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`block px-3 py-2 rounded-md ${
-                pathname === link.href
-                  ? "bg-amber-400 text-teal-900 font-semibold"
-                  : "hover:bg-amber-300 hover:text-teal-900"
-              }`}
-              onClick={() => setIsDropdownOpen(false)}
-            >
-              {link.name}
-            </Link>
-          ))}
-          {session && (
-            <button
-              onClick={() => signOut({ callbackUrl: "/auth/signin" })}
-              className="w-full text-left px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 transition text-white"
-            >
-              Sign Out
-            </button>
-          )}
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-border bg-background">
+          <div className="space-y-1 p-4">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium transition-colors ${isActive
+                    ? "bg-secondary text-secondary-foreground"
+                    : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Icon className="h-5 w-5" />
+                  {link.name}
+                </Link>
+              );
+            })}
+            {session && (
+              <>
+                <div className="my-2 border-t border-border" />
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3 px-3 py-3 rounded-md text-sm font-medium text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User className="h-5 w-5" />
+                  Profile
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                  className="flex w-full items-center gap-3 px-3 py-3 rounded-md text-sm font-medium text-destructive hover:bg-destructive/10"
+                >
+                  <LogOut className="h-5 w-5" />
+                  Sign Out
+                </button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }

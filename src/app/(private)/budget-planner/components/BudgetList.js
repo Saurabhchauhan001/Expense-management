@@ -1,44 +1,53 @@
 "use client";
 import React from "react";
-import { useBudgets } from "../context/BudgetContext";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Plus, Wallet } from "lucide-react";
 
 export default function BudgetList({ budgets, onSelect, onCreateClick }) {
-  // If budgets are passed as prop, no need to get from context hook
   return (
-    <div className="max-w-2xl mx-auto mb-8">
-      <h2 className="text-xl font-bold text-teal-700 mb-4">Your Budgets</h2>
+    <div className="max-w-3xl mx-auto mb-8 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Your Budgets</h2>
+        <Button onClick={onCreateClick}>
+          <Plus className="mr-2 h-4 w-4" /> Create New Budget
+        </Button>
+      </div>
+
       {budgets.length === 0 ? (
-        <p className="text-gray-500 text-center mt-10">No budgets yet.</p>
+        <div className="text-center py-12 border-2 border-dashed border-border rounded-lg">
+          <Wallet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">No budgets yet. Create one to get started!</p>
+        </div>
       ) : (
-        <ul className="divide-y divide-teal-100 bg-white rounded-lg shadow border border-teal-200">
+        <div className="grid gap-4">
           {budgets.map((budget) => (
-            <li
+            <Card
               key={budget._id || budget.id || budget.category}
-              className="flex items-center justify-between p-4 cursor-pointer hover:bg-teal-50 transition"
+              className="cursor-pointer hover:bg-secondary/50 transition-colors"
               onClick={() => onSelect && onSelect(budget)}
             >
-              <div>
-                <span className="font-semibold text-teal-700 text-lg">
-                  {budget.name || budget.category || "Untitled"}
-                </span>
-                {budget.type && (
-                  <span className="ml-2 text-sm text-gray-500">({budget.type})</span>
-                )}
-              </div>
-              <div className="font-semibold">
-                {typeof budget.totalBudget === "number"
-                  ? `₹${Number(budget.totalBudget).toLocaleString("en-IN")}`
-                  : budget.totalBudget}
-              </div>
-            </li>
+              <CardContent className="p-6 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-lg">
+                    {budget.name || budget.category || "Untitled"}
+                  </h3>
+                  {budget.type && (
+                    <span className="text-sm text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                      {budget.type}
+                    </span>
+                  )}
+                </div>
+                <div className="text-xl font-bold text-primary">
+                  {typeof budget.totalBudget === "number"
+                    ? `₹${Number(budget.totalBudget).toLocaleString("en-IN")}`
+                    : budget.totalBudget}
+                </div>
+              </CardContent>
+            </Card>
           ))}
-        </ul>
+        </div>
       )}
-      <div className="mt-4">
-        <button className="bg-teal-600 text-white px-4 py-2 rounded" onClick={onCreateClick}>
-          Create New Budget
-        </button>
-      </div>
     </div>
   );
 }
