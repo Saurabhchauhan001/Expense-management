@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/Card";
-import { Button } from "../../../components/ui/Button";
-import { Input } from "../../../components/ui/Input";
-import { Modal } from "../../../components/ui/Modal";
+import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Modal } from "../../../components/ui/modal";
 import { Plus, Pencil, Trash2, CheckCircle, XCircle, Calendar, Tag, User } from "lucide-react";
 
 export default function DuesPage() {

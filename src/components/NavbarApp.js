@@ -5,7 +5,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, User, LogOut, LayoutDashboard, Receipt, PieChart, FileText } from "lucide-react";
-import { Button } from "./ui/Button";
+import { Button } from "./ui/button";
 import ThemeToggle from "./ThemeToggle";
 
 export default function NavbarApp() {

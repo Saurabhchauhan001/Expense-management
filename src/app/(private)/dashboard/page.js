@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import RecentTransactions from "@/components/dashboard/RecentTransactions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ExpenseChart from "@/components/dashboard/ExpenseChart";
 import { Wallet, TrendingUp, AlertCircle } from "lucide-react";
 

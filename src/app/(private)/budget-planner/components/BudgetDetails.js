@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import AddCategoryForm from "./AddCategoryForm";
 import CategoryList from "./CategoryList";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 
 export default function BudgetDetails({

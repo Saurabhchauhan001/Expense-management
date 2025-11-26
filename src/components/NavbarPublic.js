@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Button } from "./ui/Button";
+import { Button } from "./ui/button";
 import ThemeToggle from "./ThemeToggle";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
@@ -35,8 +35,8 @@ export default function NavbarPublic() {
               key={link.href}
               href={link.href}
               className={`text-sm font-medium transition-colors ${pathname === link.href
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               {link.name}
@@ -70,8 +70,8 @@ export default function NavbarPublic() {
                 key={link.href}
                 href={link.href}
                 className={`text-sm font-medium transition-colors ${pathname === link.href
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
                   }`}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
