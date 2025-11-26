@@ -24,7 +24,7 @@ function AuthenticatedLayout({ children }) {
 
   return (
     <>
-     
+
       <main className="p-6">{children}</main>
       <Footer />
     </>
@@ -34,7 +34,7 @@ function AuthenticatedLayout({ children }) {
 export default function PrivateLayout({ children }) {
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background text-foreground">
         <AuthenticatedLayout>{children}</AuthenticatedLayout>
       </div>
     </SessionProvider>

@@ -91,9 +91,9 @@ export default function ReportsPage() {
       </div>
 
       {/* Quick Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center">
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <ArrowDownCircle className="w-8 h-8 text-destructive mb-2" />
             <h3 className="text-sm font-medium text-muted-foreground">Total Expenses</h3>
             <p className="text-2xl font-bold text-destructive">₹{reportData.totalExpense.toLocaleString()}</p>
@@ -101,7 +101,7 @@ export default function ReportsPage() {
         </Card>
 
         <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center">
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <ArrowUpCircle className="w-8 h-8 text-green-500 mb-2" />
             <h3 className="text-sm font-medium text-muted-foreground">Total Income</h3>
             <p className="text-2xl font-bold text-green-500">₹{reportData.totalIncome.toLocaleString()}</p>
@@ -109,10 +109,22 @@ export default function ReportsPage() {
         </Card>
 
         <Card>
-          <CardContent className="p-6 flex flex-col items-center justify-center">
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
             <Wallet className="w-8 h-8 text-primary mb-2" />
             <h3 className="text-sm font-medium text-muted-foreground">Net Savings</h3>
             <p className="text-2xl font-bold text-primary">₹{reportData.netSavings.toLocaleString()}</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6 flex flex-col items-center justify-center text-center">
+            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center mb-2">
+              <span className="text-lg">🏆</span>
+            </div>
+            <h3 className="text-sm font-medium text-muted-foreground">Top Category</h3>
+            <p className="text-lg font-bold text-purple-700 truncate max-w-full">
+              {categoryData.length > 0 ? categoryData.sort((a, b) => b.value - a.value)[0].name : "N/A"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -126,13 +138,33 @@ export default function ReportsPage() {
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={expenseData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <defs>
+                  <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.2} />
                 <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
                 <YAxis stroke="#888888" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
-                <Tooltip cursor={{ fill: "transparent" }} contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
+                <Tooltip
+                  cursor={{ fill: "rgba(0,0,0,0.1)" }}
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                    backdropFilter: "blur(10px)",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(0,0,0,0.1)",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+                  }}
+                  itemStyle={{ color: "#333" }}
+                />
                 <Legend />
-                <Bar dataKey="expenses" fill="#ef4444" name="Expenses" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="income" fill="#10b981" name="Income" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="expenses" fill="url(#colorExpense)" name="Expenses" radius={[4, 4, 0, 0]} animationDuration={1500} />
+                <Bar dataKey="income" fill="url(#colorIncome)" name="Income" radius={[4, 4, 0, 0]} animationDuration={1500} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -156,12 +188,22 @@ export default function ReportsPage() {
                   outerRadius={80}
                   paddingAngle={5}
                   label
+                  animationDuration={1500}
                 >
                   {categoryData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(255,255,255,0.2)" />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "rgba(255, 255, 255, 0.8)",
+                    backdropFilter: "blur(10px)",
+                    borderRadius: "8px",
+                    border: "1px solid rgba(0,0,0,0.1)",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)"
+                  }}
+                  itemStyle={{ color: "#333" }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
