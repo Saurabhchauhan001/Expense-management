@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ========================================================= -->
+    <!-- Base App Theme -->
+    <!-- ========================================================= -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">#030712</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- Background after splash -->
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <!-- Optional No-ActionBar Theme -->
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <!-- ========================================================= -->
+    <!-- Android 12+ Splash Screen -->
+    <!-- ========================================================= -->
+    <style name="AppTheme.Splash" parent="Theme.SplashScreen">
+        <!-- Solid background color -->
+        <item name="windowSplashScreenBackground">@color/background_color</item>
+
+        <!-- Center splash icon -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash</item>
+
+        <!-- After splash screen -->
+        <item name="postSplashScreenTheme">@style/AppTheme</item>
+    </style>
+
+</resources>

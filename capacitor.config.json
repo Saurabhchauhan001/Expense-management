@@ -1,0 +1,10 @@
+{
+  "appId": "com.saurabh.expenses",
+  "appName": "Expense Manager",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://expense-management-xi.vercel.app",
+    "cleartext": true
+  }
+}
