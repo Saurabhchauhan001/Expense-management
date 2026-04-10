@@ -4,18 +4,35 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Transaction from "@/models/Transaction";
 import { jsPDF } from "jspdf";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(req) {
   try {
     await connectDB();
 
-    // Extract user and filter (for now use dummy email and default to monthly)
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Extract user and filter
     const { searchParams } = new URL(req.url);
     const period = searchParams.get("period") || "monthly";
-    const userEmail = "saurabhrakeshchauhan@gmail.com";
+    const month = searchParams.get("month"); // expected format: "YYYY-MM"
+    const userEmail = session.user.email;
 
     // Fetch all transactions
-    const transactions = await Transaction.find({ userEmail }).sort({ date: -1 });
+    let transactions = await Transaction.find({ userEmail }).sort({ date: -1 });
+
+    if (month) {
+      transactions = transactions.filter(tx => {
+        const txDate = new Date(tx.date);
+        const yyyy = txDate.getFullYear();
+        const mm = String(txDate.getMonth() + 1).padStart(2, '0');
+        return `${yyyy}-${mm}` === month;
+      });
+    }
 
     if (!transactions || transactions.length === 0) {
       return NextResponse.json({ error: "No transactions found" }, { status: 404 });
@@ -31,15 +48,15 @@ export async function GET(req) {
     doc.setFontSize(18);
     doc.text("Expense Management - Transaction Report", 14, 20);
     doc.setFontSize(12);
-    doc.text(`Period: ${period}`, 14, 30);
+    doc.text(`Period: ${month ? month : period}`, 14, 30);
     doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 37);
 
     // Calculate totals
     let totalIncome = 0;
     let totalExpense = 0;
     transactions.forEach((tx) => {
-      if (tx.type === "Income") totalIncome += tx.amount;
-      else if (tx.type === "Expense") totalExpense += tx.amount;
+      if (tx.type === "Income" || tx.type === "income") totalIncome += tx.amount;
+      else if (tx.type === "Expense" || tx.type === "expense") totalExpense += tx.amount;
     });
 
     const netSavings = totalIncome - totalExpense;
