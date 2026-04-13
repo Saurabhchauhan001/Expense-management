@@ -4,12 +4,18 @@ import React, { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, ArrowDownLeft, CreditCard } from "lucide-react";
 
-export default function RecentTransactions({ limit }) {
+export default function RecentTransactions({ limit, transactionsData }) {
   const [transactions, setTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!transactionsData);
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (transactionsData) {
+      setTransactions(limit ? transactionsData.slice(0, limit) : transactionsData);
+      setLoading(false);
+      return;
+    }
+
     const fetchRecent = async () => {
       try {
         const res = await fetch("/api/transactions/recent");
@@ -24,7 +30,7 @@ export default function RecentTransactions({ limit }) {
       }
     };
     fetchRecent();
-  }, [limit]);
+  }, [limit, transactionsData]);
 
   if (loading) return <div className="text-sm text-muted-foreground py-4">Loading recent transactions...</div>;
   if (transactions.length === 0) return <div className="text-sm text-muted-foreground py-4">No recent paid transactions found.</div>;
